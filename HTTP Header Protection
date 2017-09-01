@@ -1,0 +1,71 @@
+Attacks Protected
+
+
+# Clickjacking
+#
+# config to don't allow the browser to render the page inside an frame or iframe
+# and avoid clickjacking http://en.wikipedia.org/wiki/Clickjacking
+# if you need to allow [i]frames, you can use SAMEORIGIN or even set an uri with ALLOW-FROM uri
+# https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options
+
+
+# Disable content-type sniffing
+#
+# when serving user-supplied content, include a X-Content-Type-Options: nosniff header along with the Content-Type: header,
+# to disable content-type sniffing on some browsers.
+# https://www.owasp.org/index.php/List_of_useful_HTTP_headers
+# currently suppoorted in IE > 8 http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx
+# http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx
+# 'soon' on Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=471020
+
+
+# Cross-site scripting (XSS)
+#
+# This header enables the Cross-site scripting (XSS) filter built into most recent web browsers.
+# It's usually enabled by default anyway, so the role of this header is to re-enable the filter for 
+# this particular website if it was disabled by the user.
+# https://www.owasp.org/index.php/List_of_useful_HTTP_headers
+
+# HTTP Strict Transport Security
+#
+# https://raymii.org/s/tutorials/HTTP_Strict_Transport_Security_for_Apache_NGINX_and_Lighttpd.html
+# http://imasters.com.br/infra/seguranca/hsts-meu-https-nao-esta-seguro/?trace=1519021197&source=single
+
+# Content-Security-Policy
+#
+# https://developer.mozilla.org/pt-BR/docs/Security/CSP/Introdu%C3%A7%C3%A3o_a_Content_Security_Policy
+
+# 
+#
+# 
+
+APACHE
+
+Enable mod_headers:
+
+	sudo a2enmod headers
+
+Add in .htaccess or in httpd.conf
+
+	<IfModule mod_headers.c>
+	  Header always append X-Frame-Options SAMEORIGIN
+	  Header set X-XSS-Protection "1; mode=block"
+	  Header set X-Content-Type-Options nosniff
+	  Header set Strict-Transport-Security “max-age=15768000″
+	  Header set X-Permitted-Cross-Domain-Policies "master-only"
+	  Header set Content-Security-Policy "default-src 'self'; img-src *; font-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.brasilct.com *.brasilct.net *.googletagmanager.com *.google-analytics.com *.google.com dnn506yrbagrg.cloudfront.net js-agent.newrelic.com bam.nr-data.net *.amazonaws.com dev.visualwebsiteoptimizer.com; style-src 'self' 'unsafe-inline' *.amazonaws.com *.googleapis.com; frame-src 'self' *.googletagmanager.com"
+	</IfModule>
+
+
+NGINX
+
+Add in "nginx.conf" ou "name_site.conf" in server options:
+	
+	server_tokens off;
+	add_header X-Frame-Options SAMEORIGIN;
+	add_header X-Content-Type-Options nosniff;
+	add_header X-XSS-Protection "1; mode=block";
+	add_header X-Permitted-Cross-Domain-Policies master-only;
+	add_header Strict-Transport-Security max-age=15768000;
+	add_header Content-Security-Policy "default-src 'self'; img-src *; font-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.brasilct.com *.brasilct.net *.googletagmanager.com *.google-analytics.com *.google.com dnn506yrbagrg.cloudfront.net js-agent.newrelic.com bam.nr-data.net *.amazonaws.com dev.visualwebsiteoptimizer.com; style-src 'self' 'unsafe-inline' *.amazonaws.com *.googleapis.com; frame-src 'self' *.googletagmanager.com";
+	
