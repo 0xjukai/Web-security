@@ -3,6 +3,21 @@ The File Inclusion vulnerability allows an attacker to include a file, usually e
 
 The Path Traversal vulnerability allows an attacker to access a file, usually exploiting a "reading" mechanism implemented in the target application
 
+----------------------------------
+
+Facts:
+
+on UNIX /./etc/passwd is the same as /etc/passwd
+on PHP trailing slash are often stripped off so /etc/passwd/ is the same as /etc/passwd
+on PHP as trailing slash are stripped off, they can be added as much as we want so /etc/passwd////// is the same as /etc/passwd
+on PHP ./ can be appended as many tiems as you want to a path so /etc/passwd/., /etc/passwd/./, /etc/passwd/././. are all the same as /etc/passwd.
+But there is another fact that is interesting to bypass extensions filter: on a lot of PHP installation, filenames longer than 4096 bytes are silently truncated! Characters after the firsts 4096 bytes are discarded and no error is triggered.
+
+So what? Let's craft a very long path to discard .php extension!
+
+Take your request and append a thousand times ./ to ../../../etc/passwd/./././././<...> so will get ../../../etc/passwd/./././././<...>/././.php but the filename will be longer than 4096 bytes so the overlong part will be dropped. So we'll just get our request and thousand times ./ that will be equivalent to ../../../etc/passwd.
+-------------------------------------
+
 Summary
 Tools
 Basic LFI
